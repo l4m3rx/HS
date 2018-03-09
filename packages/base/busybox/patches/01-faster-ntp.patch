@@ -1,0 +1,31 @@
+From 1f1f8047ca897cf523019ff3688264b61ac44d30 Mon Sep 17 00:00:00 2001
+From: Stefan Saraev <stefan@saraev.ca>
+Date: Tue, 2 Jan 2018 20:59:53 +0200
+Subject: [PATCH] faster ntp
+
+---
+ networking/ntpd.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/networking/ntpd.c b/networking/ntpd.c
+index 17e5c7d..1782856 100644
+--- a/networking/ntpd.c
++++ b/networking/ntpd.c
+@@ -152,10 +152,10 @@
+ #define INITIAL_SAMPLES    4    /* how many samples do we want for init */
+ #define BAD_DELAY_GROWTH   4    /* drop packet if its delay grew by more than this */
+ 
+-#define RETRY_INTERVAL    32    /* on send/recv error, retry in N secs (need to be power of 2) */
+-#define NOREPLY_INTERVAL 512    /* sent, but got no reply: cap next query by this many seconds */
+-#define RESPONSE_INTERVAL 16    /* wait for reply up to N secs */
+-#define HOSTNAME_INTERVAL  4    /* hostname lookup failed. Wait N * peer->dns_errors secs for next try */
++#define RETRY_INTERVAL     1    /* on send/recv error, retry in N secs (need to be power of 2) */
++#define NOREPLY_INTERVAL  16    /* sent, but got no reply: cap next query by this many seconds */
++#define RESPONSE_INTERVAL  1    /* wait for reply up to N secs */
++#define HOSTNAME_INTERVAL  1    /* hostname lookup failed. Wait N * peer->dns_errors secs for next try */
+ #define DNS_ERRORS_CAP  0x3f    /* peer->dns_errors is in [0..63] */
+ 
+ /* Step threshold (sec). std ntpd uses 0.128.
+-- 
+2.11.0
+

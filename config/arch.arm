@@ -1,0 +1,22 @@
+################################################################################
+#  This program is free software; you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License version 2 as
+#  published by the Free Software Foundation.
+################################################################################
+
+case $TARGET_CPU in
+  arm1176jzf-s)
+    TARGET_SUBARCH=armv6zk
+    TARGET_ABI=eabi
+    TARGET_EXTRA_FLAGS="-mcpu=$TARGET_CPU"
+    TARGET_FPU_FLAGS="-mfloat-abi=$TARGET_FLOAT -mfpu=$TARGET_FPU"
+    ;;
+esac
+
+TARGET_GCC_ARCH=arm
+TARGET_KERNEL_ARCH=arm
+
+# setup ARCH specific *FLAGS
+TARGET_CFLAGS="-march=$TARGET_SUBARCH -mcpu=$TARGET_CPU -mabi=aapcs-linux -Wno-psabi -Wa,-mno-warn-deprecated $TARGET_EXTRA_FLAGS $TARGET_FPU_FLAGS"
+TARGET_LDFLAGS="-march=$TARGET_SUBARCH -mtune=$TARGET_CPU"
+GCC_OPTS="--with-abi=aapcs-linux --with-arch=$TARGET_SUBARCH --with-float=$TARGET_FLOAT --with-fpu=$TARGET_FPU"

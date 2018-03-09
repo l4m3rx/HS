@@ -1,0 +1,67 @@
+From 9497470a39353fe620781fefcbc2288547068563 Mon Sep 17 00:00:00 2001
+From: Stefan Saraev <stefan@saraev.ca>
+Date: Fri, 20 Apr 2018 22:10:33 +0300
+Subject: [PATCH 1/2] [hs] always use /dev/i2c-1
+
+---
+ bcm2835.c | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
+
+diff --git a/bcm2835.c b/bcm2835.c
+index 75954d7..d23f510 100644
+--- a/bcm2835.c
++++ b/bcm2835.c
+@@ -816,11 +816,7 @@ int bcm2835_i2c_begin(void)
+ {
+ 	int fd ;
+ 
+-#if BANANAPI
+-	if ((fd = open ("/dev/i2c-2", O_RDWR)) < 0)
+-#else
+-	if ((fd = open (bcm2835_get_pi_version() == 1 ? "/dev/i2c-0":"/dev/i2c-1" , O_RDWR)) < 0)
+-#endif
++	if ((fd = open ("/dev/i2c-1", O_RDWR)) < 0)
+ 		return fd;
+ 		
+ 	// Set i2c descriptor
+-- 
+2.17.0
+
+
+From 8a6b787df5e7da5acaba9387ebc2b42ce2719300 Mon Sep 17 00:00:00 2001
+From: Stefan Saraev <stefan@saraev.ca>
+Date: Mon, 5 Mar 2018 19:19:43 +0200
+Subject: [PATCH 2/2] [hs] add CMakeLists.txt
+
+---
+ CMakeLists.txt | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
+ create mode 100644 CMakeLists.txt
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+new file mode 100644
+index 0000000..e5b6fa7
+--- /dev/null
++++ b/CMakeLists.txt
+@@ -0,0 +1,18 @@
++cmake_minimum_required(VERSION 2.6)
++
++project(ArduiPi_OLED)
++
++set(SOURCES ArduiPi_OLED.cpp
++	Adafruit_GFX.cpp
++	bcm2835.c
++	Wrapper.cpp)
++
++set(HEADERS Adafruit_GFX.h
++	ArduiPi_OLED.h
++	ArduiPi_OLED_lib.h
++	bcm2835.h)
++
++add_library(ArduiPi_OLED STATIC ${SOURCES} ${HEADERS})
++
++install(TARGETS ArduiPi_OLED ARCHIVE DESTINATION "${CMAKE_INSTALL_PREFIX}/lib")
++install(FILES ${HEADERS} DESTINATION "${CMAKE_INSTALL_PREFIX}/include")
+-- 
+2.17.0
+

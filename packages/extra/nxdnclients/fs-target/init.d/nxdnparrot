@@ -1,0 +1,38 @@
+#!/bin/sh
+
+################################################################################
+#  This program is free software; you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License version 2 as
+#  published by the Free Software Foundation.
+################################################################################
+
+# SEQ=86
+
+. /etc/profile
+
+case "$1" in
+  start)
+    if [ `pidof NXDNParrot` ] ; then
+      exit 0
+    fi
+    CONFIG="/storage/.config/NXDNGateway.ini"
+    if [ -f $CONFIG ] ; then
+      PORT=$(grep ParrotPort= $CONFIG | cut -d= -f2)
+      if [ -n "$PORT" ] ; then
+      (
+        while : ; do
+          sleep 2
+          NXDNParrot $PORT &>/dev/null
+        done
+      ) &
+      fi
+    fi
+    ;;
+  stop)
+    pkill -TERM -f NXDNParrot
+    sleep 0.2
+    pkill -9 -f 'NXDNParrot|nxdnparrot'
+    ;;
+esac
+
+exit 0

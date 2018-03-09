@@ -1,0 +1,26 @@
+#!/bin/sh
+
+################################################################################
+#  This program is free software; you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License version 2 as
+#  published by the Free Software Foundation.
+################################################################################
+
+. /etc/profile
+
+case "$1" in
+  start)
+    if [ `pidof wpa_supplicant` ] ; then
+      exit 0
+    fi
+    if [ -d /sys/class/net/wlan0 ] ; then
+      : | cp -i /etc/config/wpa_supplicant.conf /storage/.config 2>/dev/null
+      wpa_supplicant -B -Dnl80211 -iwlan0 -c/storage/.config/wpa_supplicant.conf 2>/dev/null
+    fi
+    ;;
+  stop)
+    pkill -9 -f wpa_supplicant
+    ;;
+esac
+
+exit 0

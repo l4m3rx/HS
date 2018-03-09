@@ -1,0 +1,193 @@
+From c2f2020ccd83c5baf751c674e1565fc43f8f7b4f Mon Sep 17 00:00:00 2001
+From: Stefan Saraev <stefan@saraev.ca>
+Date: Sat, 14 Apr 2018 11:35:26 +0300
+Subject: [PATCH 1/2] [hs] oled
+
+---
+ OLED.cpp | 43 +++++++++++++++++++++++++++++++++++++------
+ 1 file changed, 37 insertions(+), 6 deletions(-)
+
+diff --git a/OLED.cpp b/OLED.cpp
+index d718a2a..9dc2307 100644
+--- a/OLED.cpp
++++ b/OLED.cpp
+@@ -22,6 +22,10 @@
+ static bool networkInfoInitialized = false;
+ static unsigned char passCounter = 0;
+ 
++static std::string lh2 = "";
++static std::string lh3 = "";
++static std::string lh4 = "";
++
+ //Logo MMDVM for Idle Screen
+ static unsigned char logo_glcd_bmp[] =
+ {
+@@ -210,8 +214,6 @@ void COLED::setIdleInt()
+ //    display.print("Idle");
+ 
+ //    display.setTextSize(1);
+-    display.startscrolldiagright(0x00,0x0f);  //the MMDVM logo scrolls the whole screen
+-    display.display();
+ 	
+ 	unsigned char info[100U];
+ 	CNetworkInfo* m_network;
+@@ -232,6 +234,24 @@ void COLED::setIdleInt()
+ 		passCounter = 0;
+ 	}
+ 	
++
++    display.fillRect(0, OLED_LINE2, display.width(), 40, BLACK);
++    display.setCursor(0, OLED_LINE2);
++    display.printf("%s", lh2.c_str());
++
++    display.fillRect(0, OLED_LINE3, display.width(), 40, BLACK);
++    display.setCursor(0, OLED_LINE3);
++    display.printf("%s", lh3.c_str());
++
++    display.fillRect(0, OLED_LINE4, display.width(), 40, BLACK);
++    display.setCursor(0, OLED_LINE4);
++    display.printf("%s", lh4.c_str());
++
++    display.fillRect(0, OLED_LINE6, display.width(), 40, BLACK);
++    display.setCursor(0, OLED_LINE6);
++    display.printf("%s", m_ipaddress.c_str());
++
++    display.display();
+ }
+ 
+ void COLED::setErrorInt(const char* text)
+@@ -340,6 +360,14 @@ void COLED::writeDMRInt(unsigned int slotNo,const std::string& src,bool group,co
+ 	display.setCursor(0,OLED_LINE6);	
+ 	display.printf("%s",m_ipaddress.c_str());
+ 	
++
++    lh4 = lh3;
++    lh3 = lh2;
++    if (group)
++      lh2 = src + " > TG" + dst;
++    else
++      lh2 = src + " > " + dst;
++
+     OLED_statusbar();
+     display.display();
+ 
+@@ -392,6 +420,10 @@ void COLED::writeFusionInt(const char* source, const char* dest, const char* typ
+ 
+     OLED_statusbar();
+     display.display();
++
++    lh4 = lh3;
++    lh3 = lh2;
++    lh2 = std::string(source) + " > " + std::string(dest);
+ }
+ 
+ void COLED::clearFusionInt()
+@@ -496,10 +528,9 @@ void COLED::clearCWInt()
+ void COLED::close()
+ {
+     display.clearDisplay();
+-	display.fillRect(0, 0, display.width(), 16, BLACK);
+-	display.startscrollright(0x00,0x01);
+-    display.setCursor(0,00);
+-    display.setTextSize(2);
++    OLED_statusbar();
++    display.setCursor(0,OLED_LINE1);
++    display.setTextSize(1);
+     display.print("-CLOSE-");
+     display.display();
+ 	
+-- 
+2.17.0
+
+
+From 32f2a6e11efd7c3661bc8a3c68de8be6d11c4ac7 Mon Sep 17 00:00:00 2001
+From: Stefan Saraev <stefan@saraev.ca>
+Date: Fri, 2 Mar 2018 21:45:05 +0200
+Subject: [PATCH 2/2] [hs] add cmake buildsystem
+
+---
+ CMakeLists.txt               | 47 ++++++++++++++++++++++++++++++++++++
+ cmake/FindArduiPi_OLED.cmake |  5 ++++
+ cmake/FindI2c.cmake          |  4 +++
+ 3 files changed, 56 insertions(+)
+ create mode 100644 CMakeLists.txt
+ create mode 100644 cmake/FindArduiPi_OLED.cmake
+ create mode 100644 cmake/FindI2c.cmake
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+new file mode 100644
+index 0000000..62c8766
+--- /dev/null
++++ b/CMakeLists.txt
+@@ -0,0 +1,47 @@
++cmake_minimum_required(VERSION 2.6)
++
++set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
++
++set(APP_NAME "MMDVMHost")
++project(${APP_NAME})
++
++option(ENABLE_OLED "Enable OLED support" OFF)
++option(ENABLE_ADAFRUIT "Enable Adafruit RGB LCD Shield support" OFF)
++
++if(GIT_VERSION)
++  set(GIT_HASH ${GIT_VERSION})
++else()
++  set(GIT_HASH "0000000000")
++endif()
++file(WRITE ${CMAKE_SOURCE_DIR}/GitVersion.h "const char *gitversion = \"${GIT_HASH}\";")
++
++file(GLOB SOURCES "*.cpp")
++file(GLOB HEADERS "*.h")
++
++SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Os -Wall -std=c++0x $ENV{CXXFLAGS}")
++set(DEPLIBS "")
++
++find_package(Threads REQUIRED QUIET)
++list(APPEND DEPLIBS ${CMAKE_THREAD_LIBS_INIT})
++
++if(ENABLE_OLED)
++  find_package(ArduiPi_OLED REQUIRED)
++  include_directories(${ARDUIPI_OLED_INCLUDE_DIRS})
++  list(APPEND DEPLIBS ${ARDUIPI_OLED_LIBRARIES})
++
++  find_package(I2c REQUIRED)
++  include_directories(${I2C_INCLUDE_DIRS})
++  list(APPEND DEPLIBS ${I2C_LIBRARIES})
++
++  add_definitions(-DOLED)
++else()
++  list(REMOVE_ITEM SOURCES ${CMAKE_SOURCE_DIR}/OLED.cpp)
++  list(REMOVE_ITEM HEADERS ${CMAKE_SOURCE_DIR}/OLED.h)
++endif()
++
++# meh.
++list(REMOVE_ITEM SOURCES ${CMAKE_SOURCE_DIR}/HD44780.cpp)
++list(REMOVE_ITEM HEADERS ${CMAKE_SOURCE_DIR}/HD44780.h)
++
++add_executable(${APP_NAME} ${SOURCES} ${HEADERS})
++target_link_libraries(${APP_NAME} ${DEPLIBS})
+diff --git a/cmake/FindArduiPi_OLED.cmake b/cmake/FindArduiPi_OLED.cmake
+new file mode 100644
+index 0000000..ee31a31
+--- /dev/null
++++ b/cmake/FindArduiPi_OLED.cmake
+@@ -0,0 +1,5 @@
++find_library(ARDUIPI_OLED_LIBRARIES ArduiPi_OLED)
++find_path(ARDUIPI_OLED_INCLUDE_DIRS NAMES ArduiPi_OLED.h ArduiPi_OLED_lib.h)
++
++include(FindPackageHandleStandardArgs)
++find_package_handle_standard_args(ArduiPi_OLED DEFAULT_MSG ARDUIPI_OLED_LIBRARIES ARDUIPI_OLED_INCLUDE_DIRS)
+diff --git a/cmake/FindI2c.cmake b/cmake/FindI2c.cmake
+new file mode 100644
+index 0000000..dafe15e
+--- /dev/null
++++ b/cmake/FindI2c.cmake
+@@ -0,0 +1,4 @@
++find_library(I2C_LIBRARIES i2c)
++
++include(FindPackageHandleStandardArgs)
++find_package_handle_standard_args(I2C DEFAULT_MSG I2C_LIBRARIES)
+-- 
+2.17.0
+

@@ -1,0 +1,39 @@
+#!/bin/sh
+
+################################################################################
+#  This program is free software; you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License version 2 as
+#  published by the Free Software Foundation.
+################################################################################
+
+# SEQ=82
+
+. /etc/profile
+
+case "$1" in
+  start)
+    if [ `pidof DMRGateway` ] ; then
+      exit 0
+    fi
+    CONFIG="/storage/.config/DMRGateway.ini"
+    if [ -f $CONFIG ] ; then
+      DAEMON=$(grep ^Daemon= $CONFIG | cut -d= -f2)
+      if [ "$DAEMON" == "1" ] ; then
+        sed -e 's/Daemon=.*/Daemon=0/g' -i $CONFIG
+      fi
+      (
+        while : ; do
+          sleep 2
+          DMRGateway $CONFIG &>/dev/null
+        done
+      ) &
+    fi
+    ;;
+  stop)
+    pkill -TERM -f DMRGateway
+    sleep 0.2
+    pkill -9 -f 'DMRGateway|dmrgateway'
+    ;;
+esac
+
+exit 0

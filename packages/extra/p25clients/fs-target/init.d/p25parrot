@@ -1,0 +1,38 @@
+#!/bin/sh
+
+################################################################################
+#  This program is free software; you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License version 2 as
+#  published by the Free Software Foundation.
+################################################################################
+
+# SEQ=88
+
+. /etc/profile
+
+case "$1" in
+  start)
+    if [ `pidof P25Parrot` ] ; then
+      exit 0
+    fi
+    CONFIG="/storage/.config/P25Gateway.ini"
+    if [ -f $CONFIG ] ; then
+      PORT=$(grep ParrotPort= $CONFIG | cut -d= -f2)
+      if [ -n "$PORT" ] ; then
+      (
+        while : ; do
+          sleep 2
+          P25Parrot $PORT &>/dev/null
+        done
+      ) &
+      fi
+    fi
+    ;;
+  stop)
+    pkill -TERM -f P25Parrot
+    sleep 0.2
+    pkill -9 -f 'P25Parrot|p25parrot'
+    ;;
+esac
+
+exit 0

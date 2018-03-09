@@ -1,0 +1,10 @@
+# target architecture
+TARGET_ARCH="arm"
+TARGET_CPU="arm1176jzf-s"
+
+TARGET_FLOAT="hard"
+TARGET_FPU="vfp"
+
+# Kernel target
+KERNEL_TARGET="zImage"
+KERNEL_MAKE_EXTRACMD="dtbs"

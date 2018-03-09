@@ -1,0 +1,13 @@
+################################################################################
+#  This program is free software; you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License version 2 as
+#  published by the Free Software Foundation.
+################################################################################
+
+export HOME="/storage"
+export PATH="/usr/sbin:/usr/bin"
+export PS1='\[\033[01;31m\]\h\[\033[01;34m\] \w \$\[\033[00m\] '
+export EDITOR="nano"
+export PAGER=""
+
+export PATH="$PATH:/storage/.extra/bin"

@@ -1,0 +1,42 @@
+From c967e0c3f187fc5cf4c9528b7ca21a5f0437bc5d Mon Sep 17 00:00:00 2001
+From: Stefan Saraev <stefan@saraev.ca>
+Date: Mon, 5 Mar 2018 22:13:36 +0200
+Subject: [PATCH] [hs] add CMakeLists.txt
+
+---
+ CMakeLists.txt | 23 +++++++++++++++++++++++
+ 1 file changed, 23 insertions(+)
+ create mode 100644 CMakeLists.txt
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+new file mode 100644
+index 0000000..779bad9
+--- /dev/null
++++ b/CMakeLists.txt
+@@ -0,0 +1,23 @@
++cmake_minimum_required(VERSION 2.6)
++
++set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
++
++project(YSFClients)
++
++file(GLOB GATEWAY_SOURCES "YSFGateway/*.cpp")
++file(GLOB GATEWAY_HEADERS "YSFGateway/*.h")
++
++file(GLOB PARROT_SOURCES "YSFParrot/*.cpp")
++file(GLOB PARROT_HEADERS "YSFParrot/*.h")
++
++SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Os -Wall -std=c++0x $ENV{CXXFLAGS}")
++set(DEPLIBS "")
++
++find_package(Threads REQUIRED QUIET)
++list(APPEND DEPLIBS ${CMAKE_THREAD_LIBS_INIT})
++
++add_executable(YSFGateway ${GATEWAY_SOURCES} ${GATEWAY_HEADERS})
++target_link_libraries(YSFGateway ${DEPLIBS})
++
++add_executable(YSFParrot ${PARROT_SOURCES} ${PARROT_HEADERS})
++target_link_libraries(YSFParrot ${DEPLIBS})
+-- 
+2.15.1
+

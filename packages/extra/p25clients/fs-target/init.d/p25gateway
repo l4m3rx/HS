@@ -1,0 +1,39 @@
+#!/bin/sh
+
+################################################################################
+#  This program is free software; you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License version 2 as
+#  published by the Free Software Foundation.
+################################################################################
+
+# SEQ=87
+
+. /etc/profile
+
+case "$1" in
+  start)
+    if [ `pidof P25Gateway` ] ; then
+      exit 0
+    fi
+    CONFIG="/storage/.config/P25Gateway.ini"
+    if [ -f $CONFIG ] ; then
+      DAEMON=$(grep ^Daemon= $CONFIG | cut -d= -f2)
+      if [ "$DAEMON" == "1" ] ; then
+        sed -e 's/Daemon=.*/Daemon=0/g' -i $CONFIG
+      fi
+      (
+        while : ; do
+          sleep 2
+          P25Gateway $CONFIG &>/dev/null
+        done
+      ) &
+    fi
+    ;;
+  stop)
+    pkill -TERM -f P25Gateway
+    sleep 0.2
+    pkill -9 -f 'P25Gateway|p25gateway'
+    ;;
+esac
+
+exit 0

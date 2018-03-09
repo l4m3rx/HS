@@ -1,0 +1,21 @@
+#!/bin/sh
+
+################################################################################
+#  This program is free software; you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License version 2 as
+#  published by the Free Software Foundation.
+################################################################################
+
+# SEQ=98
+
+. /etc/profile
+
+case "$1" in
+  start)
+    if [ -x /storage/.config/rc.local ] ; then
+      /storage/.config/rc.local
+    fi
+    ;;
+esac
+
+exit 0

@@ -1,0 +1,28 @@
+#!/bin/bash
+
+################################################################################
+#  This program is free software; you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License version 2 as
+#  published by the Free Software Foundation.
+################################################################################
+
+. config/options $1
+
+if [ -z "$1" ]; then
+  echo "usage: $0 package_name"
+  exit 1
+fi
+
+scripts/build $1
+
+echo "* PACK EXTRA $1"
+
+rm -rf target/.extra
+mkdir -p target/.extra
+cp -PR $(get_pkg_build $1)/.install_target/* target/.extra
+
+mkdir -p target/extra
+rm -f target/extra/$1-*.tar
+tar cf target/extra/$1-$(date +%Y%m%d%H%M).tar -C target/ .extra
+
+rm -rf target/.extra

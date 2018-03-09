@@ -1,0 +1,15 @@
+################################################################################
+#  This program is free software; you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License version 2 as
+#  published by the Free Software Foundation.
+################################################################################
+
+null::sysinit:/bin/mkdir -p /dev/pts
+null::sysinit:/bin/mount -t devpts none /dev/pts
+null::sysinit:/etc/rc.d/rcS boot
+
+::respawn:-/bin/sh
+
+null::restart:/sbin/init
+null::ctrlaltdel:/sbin/reboot
+null::shutdown:/etc/rc.d/rcS shutdown
