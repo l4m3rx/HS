@@ -5,7 +5,7 @@
 ################################################################################
 
 PKG_NAME="dmrgateway"
-PKG_VERSION="004c162fca"
+PKG_VERSION="14fc1e35d1"
 PKG_SITE="https://github.com/g4klx/DMRGateway"
 PKG_URL="$PKG_SITE/archive/$PKG_VERSION.tar.gz"
 
