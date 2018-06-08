@@ -5,7 +5,7 @@
 ################################################################################
 
 PKG_NAME="mmdvmcal"
-PKG_VERSION="0e8628bcb3"
+PKG_VERSION="e7ee1b9f45"
 PKG_SITE="https://github.com/g4klx/MMDVMCal"
 PKG_URL="$PKG_SITE/archive/$PKG_VERSION.tar.gz"
 
